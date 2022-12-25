@@ -1,0 +1,59 @@
+
+{% extends "movies/base.html" %}
+{% load static %}
+
+
+{% block content %}
+
+    <!-- news section start -->
+    <div class="news_section layout_padding">
+        <div class="container">
+            <div class="news_taital_main">
+                <form class="example" action="/action_page.php">
+                    <input type="text" placeholder="Search.." name="search">
+                    <button type="submit"><i class="fa fa-search"></i></button>
+                </form>
+                <div class="seemor_bt"><a href="#"></a></div>
+            </div>
+        </div>
+    </div>
+    <div class="news_section_2">
+        <div class="container">
+            <div class="down_arrow"><img src="{% static 'images/down-arrow.png' %}"></div>
+
+
+
+
+            {#               рендер с бд#}
+            <div class="row">
+
+                {% for movies in movie_list %}
+                    <div class="col-lg-3 col-sm-6">
+                        <div class="images_main">
+                            <div class="image_1"><img src="{{ movies.poster.url }}"></div>
+                            {#                    stars join#}
+                            <div class="rating-mini">
+                                <span class="active"></span>
+                                <span class="active"></span>
+                                <span class="active"></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                            {#                      end stars#}
+                            <div class="text_main">
+                                <h2 class="business_text">{{ movies.title }}</h2>
+                            </div>
+                            {% for genre in movies.genres.all %}
+                                <p class="ipsum_text"> Жанр: {{ genre.name }}</p>
+                                <div class="seemor_bt_1"><a href="{{ movies.get_absolute_url }}">Смотреть</a></div>
+                                </div>
+                            {% endfor %}
+                    </div>
+                {% endfor %}
+                {#                  рендер с бд стоп#}
+            </div>
+        </div>
+        <!-- news section end -->
+
+
+    </div>{% endblock content %}
