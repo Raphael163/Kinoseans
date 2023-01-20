@@ -21,6 +21,7 @@ class MovieDetailView(DetailView):
 
 
 class AddReview(View):
+    """Добавление отзыва"""
     def post(self, request, pk):
         form = ReviewForm(request.POST)
         movie = Movie.objects.get(id=pk)
