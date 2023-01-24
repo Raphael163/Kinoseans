@@ -1,5 +1,6 @@
 """импорт из models"""
 from django.contrib import admin
+from django import forms
 from django.utils.safestring import mark_safe
 
 from .models import Category
@@ -10,6 +11,16 @@ from .models import MovieShots
 from .models import RatingStar
 from .models import Rating
 from .models import Reviews
+
+from ckeditor_uploader.widgets import CKEditorUploadingWidget
+
+
+class MovieAdminForm(forms.ModelForm):
+    description = forms.CharField(label="Описание", widget=CKEditorUploadingWidget())
+
+    class Meta:
+        model = Movie
+        fields = '__all__'
 
 
 @admin.register(Category)
@@ -27,6 +38,18 @@ class ReviewInline(admin.TabularInline):
     readonly_fields = ("name", "email")
 
 
+class MovieShotsInline(admin.TabularInline):
+    model = MovieShots
+    extra = 1
+    readonly_fields = ("get_img",)
+
+    def get_img(self, obj):
+
+        return mark_safe(f'<img src={obj.image.url} width="110" height="110"')
+
+    get_img.short_description = "Постер"
+
+
 @admin.register(Movie)
 class MovieAdmin(admin.ModelAdmin):
     """появится категории"""
@@ -39,7 +62,7 @@ class MovieAdmin(admin.ModelAdmin):
     search_fields = ("title", "category__name")
 
     """добавляем поля для обработки наследуем от ReviewInline а встроенного класса django TabularInline """
-    inlines = [ReviewInline]
+    inlines = [MovieShotsInline, ReviewInline]
 
     """добавляем кнопку сохранить на верх"""
     save_on_top = True
@@ -49,6 +72,12 @@ class MovieAdmin(admin.ModelAdmin):
 
     """Делаем чек боксы черновика сразу в списке фильмов(возможность редактирования черновика вкд выкл)"""
     list_editable = ("draft",)
+
+    """добавляем постер в выбор постера в редактирование"""
+    readonly_fields = ("get_img",)
+
+    """подключаем форму MovieAdminForm CKEditor """
+    form = MovieAdminForm
 
     """Добавляем группы и скрытие групп <<"classes": ("collapse",),>> дает возможность сворачивать таблицы 
     в fields группируем наши поля как нам нужно 
@@ -60,7 +89,7 @@ class MovieAdmin(admin.ModelAdmin):
         }),
         ("Группа - Описание, Постер", {
             "classes": ("collapse",),
-            "fields": (('description', "poster"),)
+            "fields": (('description', "poster", "get_img"),)
         }),
         ("Группа - Год, Страна", {
             "classes": ("collapse",),
@@ -83,6 +112,14 @@ class MovieAdmin(admin.ModelAdmin):
             "fields": (('url', "draft"),)
         }),
     )
+
+    def get_img(self, obj):
+
+        return mark_safe(f'<img src={obj.poster.url} width="110" height="110"')
+
+    get_img.short_description = "Постер"
+
+
 
 
 @admin.register(Reviews)
@@ -127,8 +164,6 @@ class MovieShotsAdmin(admin.ModelAdmin):
     get_poster.short_description = "Постер"
 
 
-
-
 @admin.register(Rating)
 class RatingAdmin(admin.ModelAdmin):
     list_display = ("movie", "ip", "star",)
@@ -137,3 +172,5 @@ class RatingAdmin(admin.ModelAdmin):
 """ Регистрируем модельки """
 admin.site.register(RatingStar)
 
+admin.site.site_title = "Кино Сеанс"
+admin.site.site_header = "Кино Сеанс"
